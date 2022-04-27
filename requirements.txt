@@ -11,4 +11,3 @@ sqlparse==0.4.2
 typing-extensions==3.10.0.2
 python-dateutil==2.8.2
 sqlalchemy
-pyscopg2==2.7.3.2

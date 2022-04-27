@@ -1,0 +1,5 @@
+FROM node:14.18.1
+RUN mkdir /front
+WORKDIR /front
+ENV PATH /front/node_modules/.bin:$PATH
+ADD front/ /front/

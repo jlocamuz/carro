@@ -1,4 +1,6 @@
 
+from email.policy import HTTP
+from telnetlib import STATUS
 from django.contrib.auth.models import Permission
 from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, renderers
@@ -135,16 +137,25 @@ class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
 
+    def list(self, request):
+        diccionario = request.query_params.dict()
+        print(diccionario)
+        queryset = Sale.objects.all()
+        serializer = SaleSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
+        print(request)
         diccionario = request.query_params.dict()
+        keys = request.query_keys
+        print(keys)
         name = diccionario['user']
         queryset = User.objects.all()
         user = get_object_or_404(queryset, name=name)
         client_d = ClientDetail.objects.get(client=user)
         sc = ShoppingCart.objects.filter(client_detail=client_d).first()
         
-        
+
         if sc != None:
             sale = Sale(client_detail=client_d)
             sale.save()
@@ -154,14 +165,31 @@ class SaleViewSet(viewsets.ModelViewSet):
                 product_quantity = int(i.product_quantity)
                 sale_d = SaleDetail(sale=sale, product=product, product_quantity=product_quantity)
                 sale_d.save()
+                serializer = SaleSerializer(sale)
 
 
-        serializer = UserSerializer(user)
+            ShoppingCart.objects.filter(client_detail=client_d).delete()
+            return Response(serializer.data)
 
-
-        ShoppingCart.objects.filter(client_detail=client_d).delete()
-        return Response(serializer.data)
+        return Response('nada')
 
 class SaleDetailViewSet(viewsets.ModelViewSet):
     queryset = SaleDetail.objects.all()
     serializer_class = SaleDetailSerializer
+
+    def retrieve(self, request, pk=None):
+        diccionario = request.query_params.dict()
+        name = diccionario['user']
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, name=name)
+        client_d = ClientDetail.objects.get(client=user)
+        sale = Sale.objects.filter(client_detail=client_d)
+        data = []
+        for i in sale:
+            # i : sale object
+            sale_details = SaleDetail.objects.filter(sale=i)
+            serializer = SaleDetailSerializer(sale_details, many=True)
+            data.append(serializer.data)
+
+        print(data)
+        return Response(data)
