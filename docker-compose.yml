@@ -20,22 +20,14 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-  db2:
-    image: postgres
-    container_name: db2
-    volumes:
-      - ./data/db2:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+
 
   products:
     build: 
       context: .
       dockerfile: products-dockerfile
     container_name: products
-    command: bash -c "python ./products/manage.py makemigrations && python ./products/manage.py migrate && python ./products/manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python ./products/manage.py makemigrations micro1 && python ./products/manage.py migrate && python ./products/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code_products
     ports:
@@ -52,17 +44,11 @@ services:
       context: .
       dockerfile: shoppingcart-dockerfile
     container_name: shopping_cart
-    command: bash -c "python ./shopping_cart/manage.py makemigrations && python ./shopping_cart/manage.py migrate && python ./shopping_cart/manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python ./shopping_cart/manage.py makemigrations micro1 && python ./shopping_cart/manage.py migrate && python ./shopping_cart/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code_shopping_cart
     ports:
       - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    depends_on:
-      - db2
 
   frontend:
     build:
