@@ -139,7 +139,6 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         diccionario = request.query_params.dict()
-        print(diccionario)
         queryset = Sale.objects.all()
         serializer = SaleSerializer(queryset, many=True)
         return Response(serializer.data)
